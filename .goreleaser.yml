@@ -7,7 +7,7 @@ before:
 
 builds:
   - main: ./cmd/main.go
-    binary: '{{ .ProjectName }}'
+    binary: 'github-unfollow'
     env:
       - CGO_ENABLED=0
     goos:
@@ -31,6 +31,7 @@ archives:
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format: tar.gz
     format_overrides:
       - goos: windows
         format: zip

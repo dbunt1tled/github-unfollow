@@ -3,13 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github-folowers/internal/git_hub_manager"
-	"github-folowers/internal/helper"
-	"github-folowers/internal/worker"
 	"log"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/dbunt1tled/github-unfollow/internal/git_hub_manager"
+	"github.com/dbunt1tled/github-unfollow/internal/helper"
+	"github.com/dbunt1tled/github-unfollow/internal/worker"
 
 	"github.com/joho/godotenv"
 )
@@ -58,7 +59,7 @@ func main() {
 	}
 	force := flag.Bool("force", false, "Force the operation")
 	flag.Parse()
-	if *force {
+	if *force == false {
 		fmt.Printf("\nYou are shure that you want to unfollow %d users?", len(toUnfollow))
 		confirm := helper.GetInput("")
 		if strings.ToLower(confirm) != "y" && strings.ToLower(confirm) != "yes" {
