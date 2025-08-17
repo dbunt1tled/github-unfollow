@@ -4,10 +4,10 @@ A Go-based command-line tool to help you clean up your GitHub following list by 
 
 [![Go Version](https://img.shields.io/badge/go-1.21+-blue?logo=go)](https://golang.org/)
 [![Go Reference](https://pkg.go.dev/badge/github.com/dbunt1tled/github-unfollow.svg)](https://pkg.go.dev/github.com/dbunt1tled/github-unfollow)
-[![Build Status](https://github.com/dbunt1tled/github-unfollow/workflows/release.yml/badge.svg)](https://github.com/dbunt1tled/github-unfollow/actions)
 [![Release](https://img.shields.io/github/v/release/dbunt1tled/github-unfollow)](https://github.com/dbunt1tled/github-unfollow/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/dbunt1tled/github-unfollow)](https://goreportcard.com/report/github.com/dbunt1tled/github-unfollow)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 ## Features
 
 - 🔍 Find users you follow who don't follow you back
