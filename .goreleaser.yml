@@ -6,7 +6,7 @@ before:
     - go generate ./...
 
 builds:
-  - main: .
+  - main: ./cmd/main.go
     binary: '{{ .ProjectName }}'
     env:
       - CGO_ENABLED=0
