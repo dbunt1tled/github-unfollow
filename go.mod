@@ -1,4 +1,4 @@
-module github-folowers
+module github.com/dbunt1tled/github-unfollow
 
 go 1.25
 
