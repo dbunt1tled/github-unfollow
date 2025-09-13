@@ -3,6 +3,7 @@ package git_hub_manager
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/google/go-github/v57/github"
 	"golang.org/x/oauth2"
@@ -14,7 +15,7 @@ type GitHubManager struct {
 }
 
 func NewGitHubManager(token string, username string) *GitHubManager {
-	var ctx context.Context = context.Background()
+	var ctx = context.Background()
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
@@ -25,12 +26,16 @@ func NewGitHubManager(token string, username string) *GitHubManager {
 	}
 }
 
-func (gm *GitHubManager) GetFollowers() ([]string, error) {
+func (gm *GitHubManager) GetFollowers(name *string) ([]string, error) {
 	var allFollowers []string
+	username := gm.username
+	if name != nil {
+		username = *name
+	}
 	ctx := context.Background()
 	opts := &github.ListOptions{PerPage: 100}
 	for {
-		followers, resp, err := gm.client.Users.ListFollowers(ctx, gm.username, opts)
+		followers, resp, err := gm.client.Users.ListFollowers(ctx, username, opts)
 		if err != nil {
 			return nil, err
 		}
@@ -48,7 +53,7 @@ func (gm *GitHubManager) GetFollowers() ([]string, error) {
 func (gm *GitHubManager) GetFollowing() ([]string, error) {
 	var allFollowing []string
 	ctx := context.Background()
-	opts := &github.ListOptions{PerPage: 100}
+	opts := &github.ListOptions{PerPage: 200}
 	for {
 		following, resp, err := gm.client.Users.ListFollowing(ctx, gm.username, opts)
 		if err != nil {
@@ -65,25 +70,36 @@ func (gm *GitHubManager) GetFollowing() ([]string, error) {
 	return allFollowing, nil
 }
 
-func (gm *GitHubManager) FindUserToUnfollow(followers []string, following []string) []string {
-	followersSet := make(map[string]bool)
-	for _, follower := range followers {
-		followersSet[follower] = true
+func (gm *GitHubManager) DiffUsernames(users1 []string, users2 []string) []string {
+	users1Set := make(map[string]bool)
+	for _, u := range users1 {
+		users1Set[u] = true
 	}
-	var toUnfollow []string
-	for _, followingUser := range following {
-		if !followersSet[followingUser] {
-			toUnfollow = append(toUnfollow, followingUser)
+	var usersDiff []string
+	for _, u := range users2 {
+		if !users1Set[u] {
+			usersDiff = append(usersDiff, u)
 		}
 	}
-	return toUnfollow
+	return usersDiff
 }
 
-func (gm *GitHubManager) UnfollowUser(username string) error {
+func (gm *GitHubManager) UnfollowUser(username string, delay int) error {
 	ctx := context.Background()
+	time.Sleep(time.Duration(delay) * time.Millisecond)
 	_, err := gm.client.Users.Unfollow(ctx, username)
 	if err != nil {
-		return fmt.Errorf("ошибка отписки от %s: %v", username, err)
+		return fmt.Errorf("error to unfollow %s: %v", username, err)
+	}
+	return nil
+}
+
+func (gm *GitHubManager) FollowUser(username string, delay int) error {
+	ctx := context.Background()
+	time.Sleep(time.Duration(delay) * time.Millisecond)
+	_, err := gm.client.Users.Follow(ctx, username)
+	if err != nil {
+		return fmt.Errorf("error to follow %s: %v", username, err)
 	}
 	return nil
 }
