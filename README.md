@@ -1,8 +1,8 @@
-# GitHub Unfollow Tool
+# GitHub Follow/Unfollow Manager
 
-A Go-based command-line tool to help you clean up your GitHub following list by automatically identifying and unfollowing users who don't follow you back.
+A powerful Go-based command-line tool to manage your GitHub following relationships. Follow users who follow a specific user but don't follow you, or unfollow users who don't follow you back.
 
-[![Go Version](https://img.shields.io/badge/go-1.21+-blue?logo=go)](https://golang.org/)
+[![Go Version](https://img.shields.io/badge/go-1.24+-blue?logo=go)](https://golang.org/)
 [![Go Reference](https://pkg.go.dev/badge/github.com/dbunt1tled/github-unfollow.svg)](https://pkg.go.dev/github.com/dbunt1tled/github-unfollow)
 [![Release](https://img.shields.io/github/v/release/dbunt1tled/github-unfollow)](https://github.com/dbunt1tled/github-unfollow/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/dbunt1tled/github-unfollow)](https://goreportcard.com/report/github.com/dbunt1tled/github-unfollow)
@@ -10,24 +10,28 @@ A Go-based command-line tool to help you clean up your GitHub following list by 
 
 ## Features
 
-- 🔍 Find users you follow who don't follow you back
-- ⚡ Process large numbers of followers/following efficiently
-- 🛡️ Safe execution with interactive confirmation
-- 🚀 Concurrent processing with configurable worker pool
-- 🔐 Secure token-based authentication
-- ⚙️ Configurable through environment variables and command-line flags
+- 🔍 **Follow Management**: Follow followers of a specific user who don't follow you back
+- 🗑️ **Unfollow Cleanup**: Unfollow users who don't follow you back
+- ⚡ **Efficient Processing**: Handle large numbers of followers/following with pagination
+- 🛡️ **Safe Execution**: Interactive confirmation before bulk operations
+- 🚀 **Concurrent Processing**: Configurable worker pool for fast execution
+- 🔐 **Secure Authentication**: OAuth2 token-based GitHub API authentication
+- ⚙️ **Flexible Configuration**: Environment variables and command-line flags
+- ⏱️ **Rate Limiting**: Configurable delays to respect GitHub API limits
 
 ## Prerequisites
 
-- Go 1.16 or higher
+- Go 1.24 or higher
 - A GitHub account
 - A GitHub Personal Access Token with the `user:follow` scope
 
 ## Installation
 
+### Option 1: Build from source
+
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/github-unfollow.git
+   git clone https://github.com/dbunt1tled/github-unfollow.git
    cd github-unfollow
    ```
 
@@ -36,68 +40,239 @@ A Go-based command-line tool to help you clean up your GitHub following list by 
    go mod download
    ```
 
-3. Create a `.env` file in the project root and add your GitHub credentials:
-   ```
-   GITHUB_USER=your_github_username
-   GITHUB_TOKEN=your_github_personal_access_token
-   ```
-
-## Usage
-
-1. Build the application:
+3. Build the application:
    ```bash
-   go build -o github-unfollow cmd/main.go
+   go build -o github-unfollow main.go
    ```
 
-2. Run the application:
-   ```bash
-   ./github-unfollow
-   ```
-
-3. The tool will:
-   - Fetch your followers and following lists
-   - Identify users who don't follow you back
-   - Show you the list of users to be unfollowed
-   - Ask for confirmation before proceeding (unless `-force` is used)
-   - Process unfollows concurrently using the configured worker pool
+### Option 2: Install directly with Go
+```bash
+go install github.com/dbunt1tled/github-unfollow@latest
+```
 
 ## Configuration
 
-### Environment Variables
-Create a `.env` file in the project root with the following variables:
+### GitHub Personal Access Token
 
-```
+1. Go to GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)
+2. Generate a new token with the `user:follow` scope
+3. Copy the token for configuration
+
+### Environment Variables
+
+Create a `.env` file in the project root or set environment variables:
+
+```env
 # Required
-GITHUB_USER=your_github_username
+GITHUB_USERNAME=your_github_username
 GITHUB_TOKEN=your_github_personal_access_token
 
 # Optional (with defaults)
-WORKER_COUNT=10  # Number of concurrent workers
-QUEUE_SIZE=10     # Size of the worker queue
+WORKER_COUNT=1      # Number of concurrent workers (default: 1)
+QUEUE_SIZE=3        # Size of the worker queue (default: 3)
+TIME_DELAY_MS=2000  # Delay between API calls in milliseconds (default: 2000)
 ```
+
+**Note**: You can copy `.env.example` to `.env` and fill in your credentials.
+
+## Usage
+
+The tool provides two main commands: `follow` and `unfollow`.
+
+### Follow Command
+
+Follow followers of a specific user who don't already follow you:
+
+```bash
+# Basic usage - follow followers of 'username' who don't follow you
+./github-unfollow follow username
+
+# Skip confirmation prompt
+./github-unfollow follow username --force
+./github-unfollow follow username -f
+```
+
+**Example workflow:**
+1. Tool fetches followers of the specified username
+2. Tool fetches your current following list
+3. Identifies users who follow the target user but don't follow you
+4. Shows the list and asks for confirmation (unless `--force` is used)
+5. Follows the users concurrently with rate limiting
+
+### Unfollow Command
+
+Unfollow users who don't follow you back:
+
+```bash
+# Basic usage - unfollow users who don't follow you back
+./github-unfollow unfollow
+
+# Skip confirmation prompt
+./github-unfollow unfollow --force
+./github-unfollow unfollow -f
+```
+
+**Example workflow:**
+1. Tool fetches your followers list
+2. Tool fetches your following list
+3. Identifies users you follow who don't follow you back
+4. Shows the list and asks for confirmation (unless `--force` is used)
+5. Unfollows the users concurrently with rate limiting
 
 ### Command-Line Flags
 
-- `-force`: Skip the interactive confirmation prompt (use with caution)
+Both commands support the following flags:
 
-Example:
+- `--force, -f`: Skip interactive confirmation prompt (use with caution)
+- `--help, -h`: Show help information
+
+### Help Command
+
 ```bash
-# Run with default settings and interactive confirmation
-./github-unfollow
+# Show general help
+./github-unfollow --help
 
-# Run with force flag (skips confirmation)
-./github-unfollow -force
+# Show help for specific commands
+./github-unfollow follow --help
+./github-unfollow unfollow --help
 ```
+
+## Configuration Options
+
+### Worker Pool Settings
+
+- **WORKER_COUNT**: Number of concurrent workers for API calls (default: 1)
+  - Higher values = faster execution but more API rate limit pressure
+  - Recommended: 1-5 for most use cases
+
+- **QUEUE_SIZE**: Size of the task queue (default: 3)
+  - Buffer size for pending tasks
+  - Should be >= WORKER_COUNT
+
+- **TIME_DELAY_MS**: Delay between API calls in milliseconds (default: 2000)
+  - Helps avoid GitHub API rate limits
+  - Lower values = faster execution but higher risk of rate limiting
+  - Recommended: 1000-3000ms
+
+### Example Configurations
+
+**Conservative (safe for large operations):**
+```env
+WORKER_COUNT=1
+QUEUE_SIZE=3
+TIME_DELAY_MS=3000
+```
+
+**Balanced:**
+```env
+WORKER_COUNT=2
+QUEUE_SIZE=5
+TIME_DELAY_MS=2000
+```
+
+**Aggressive (use with caution):**
+```env
+WORKER_COUNT=5
+QUEUE_SIZE=10
+TIME_DELAY_MS=1000
+```
+
+## Examples
+
+### Follow new users from a popular account
+```bash
+# Follow followers of 'torvalds' who don't follow you
+./github-unfollow follow torvalds
+
+# Same but skip confirmation
+./github-unfollow follow torvalds --force
+```
+
+### Clean up your following list
+```bash
+# Unfollow users who don't follow you back
+./github-unfollow unfollow
+
+# Same but skip confirmation (dangerous!)
+./github-unfollow unfollow --force
+```
+
+### Using environment variables
+```bash
+# Set token and username via environment
+export GITHUB_USERNAME="myusername"
+export GITHUB_TOKEN="ghp_xxxxxxxxxxxxxxxxxxxx"
+export WORKER_COUNT=2
+export TIME_DELAY_MS=1500
+
+./github-unfollow unfollow
+```
+
+## Architecture
+
+The project is organized into the following components:
+
+- **`main.go`**: Application entry point
+- **`cmd/`**: Cobra CLI commands
+  - `root.go`: Root command setup
+  - `follow.go`: Follow command implementation
+  - `unfollow.go`: Unfollow command implementation
+- **`internal/`**: Internal packages
+  - `config/`: Configuration management with Viper
+  - `git_hub_manager/`: GitHub API client wrapper
+  - `worker/`: Worker pool for concurrent processing
+  - `helper/`: Utility functions
 
 ## Security
 
 - Your GitHub token is only used to authenticate with the GitHub API
-- The token requires only the `user:follow` scope
+- The token requires only the `user:follow` scope - no access to repositories or other data
+- Tokens are loaded from environment variables, never hardcoded
 - Never share your `.env` file or commit it to version control
+- The `.env` file is included in `.gitignore` by default
+
+## Rate Limiting
+
+GitHub API has rate limits:
+- 5,000 requests per hour for authenticated requests
+- Each follow/unfollow operation uses 1 API call
+- The tool includes built-in delays (configurable via `TIME_DELAY_MS`)
+- Use conservative settings for large operations
+
+## Troubleshooting
+
+### Common Issues
+
+**"Authentication failed" error:**
+- Verify your `GITHUB_TOKEN` is correct and has `user:follow` scope
+- Check that the token hasn't expired
+
+**"Rate limit exceeded" error:**
+- Increase `TIME_DELAY_MS` value
+- Reduce `WORKER_COUNT`
+- Wait for the rate limit to reset (1 hour)
+
+**"User not found" error:**
+- Verify the username exists and is public
+- Some users may have restricted follower lists
+
+### Debug Mode
+
+Set environment variable for more verbose output:
+```bash
+export DEBUG=1
+./github-unfollow follow username
+```
 
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
@@ -105,4 +280,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Disclaimer
 
-This tool is provided as-is, without any warranties. Use it at your own risk. The maintainers are not responsible for any issues caused by using this tool.
+This tool is provided as-is, without any warranties. Use it at your own risk. The maintainers are not responsible for any issues caused by using this tool. Always review the list of users before confirming bulk operations.
+
+## Support
+
+If you find this tool useful, please consider giving it a ⭐ on GitHub!

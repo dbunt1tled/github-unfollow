@@ -6,10 +6,11 @@ before:
     - go generate ./...
 
 builds:
-  - main: ./cmd/main.go
+  - main: ./main.go
     binary: 'github-unfollow'
     env:
       - CGO_ENABLED=0
+      - GOGC=150
     goos:
       - linux
       - windows
