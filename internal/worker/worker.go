@@ -22,7 +22,6 @@ func (w *Worker) Start() {
 			for task := range w.tasks {
 				task()
 			}
-			w.wg.Done()
 		}(i)
 	}
 }
@@ -30,8 +29,8 @@ func (w *Worker) Start() {
 func (w *Worker) AddTask(task func()) {
 	w.wg.Add(1)
 	w.tasks <- func() {
+		defer w.wg.Done()
 		task()
-		w.wg.Done()
 	}
 }
 
