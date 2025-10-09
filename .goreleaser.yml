@@ -6,7 +6,7 @@ before:
     - go generate ./...
 
 builds:
-  - main: ./main.go
+  - main: ./cmd/main.go
     binary: 'github-unfollow'
     env:
       - CGO_ENABLED=0

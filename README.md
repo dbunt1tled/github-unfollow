@@ -1,4 +1,4 @@
-# GitHub Follow/Unfollow Manager
+# GitHub Followers Manager
 
 A powerful Go-based command-line tool to manage your GitHub following relationships. Follow users who follow a specific user but don't follow you, or unfollow users who don't follow you back.
 
@@ -8,7 +8,7 @@ A powerful Go-based command-line tool to manage your GitHub following relationsh
 [![Go Report Card](https://goreportcard.com/badge/github.com/dbunt1tled/github-unfollow)](https://goreportcard.com/report/github.com/dbunt1tled/github-unfollow)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Features
+## ✨ Features
 
 - 🔍 **Follow Management**: Follow followers of a specific user who don't follow you back
 - 🗑️ **Unfollow Cleanup**: Unfollow users who don't follow you back
@@ -19,13 +19,22 @@ A powerful Go-based command-line tool to manage your GitHub following relationsh
 - ⚙️ **Flexible Configuration**: Environment variables and command-line flags
 - ⏱️ **Rate Limiting**: Configurable delays to respect GitHub API limits
 
-## Prerequisites
+## 📋 Table of Contents
+
+- [Installation](#-installation)
+- [Configuration](#-configuration)
+- [Usage](#-usage)
+- [Project Structure](#-project-structure)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+## 🚀 Installation
+
+### Prerequisites
 
 - Go 1.24 or higher
 - A GitHub account
 - A GitHub Personal Access Token with the `user:follow` scope
-
-## Installation
 
 ### Option 1: Build from source
 
@@ -42,15 +51,15 @@ A powerful Go-based command-line tool to manage your GitHub following relationsh
 
 3. Build the application:
    ```bash
-   go build -o github-unfollow main.go
+   go build -o github-followers ./main.go
    ```
 
-### Option 2: Install directly with Go
+### Option 2: Install via Go
 ```bash
 go install github.com/dbunt1tled/github-unfollow@latest
 ```
 
-## Configuration
+## ⚙️ Configuration
 
 ### GitHub Personal Access Token
 
@@ -73,9 +82,9 @@ QUEUE_SIZE=3        # Size of the worker queue (default: 3)
 TIME_DELAY_MS=2000  # Delay between API calls in milliseconds (default: 2000)
 ```
 
-**Note**: You can copy `.env.example` to `.env` and fill in your credentials.
+> **Note**: You can copy `.env.example` to `.env` and fill in your credentials.
 
-## Usage
+## 🚦 Usage
 
 The tool provides two main commands: `follow` and `unfollow`.
 
@@ -85,19 +94,57 @@ Follow followers of a specific user who don't already follow you:
 
 ```bash
 # Basic usage - follow followers of 'username' who don't follow you
-./github-unfollow follow username
+./github-followers follow username
 
 # Skip confirmation prompt
-./github-unfollow follow username --force
-./github-unfollow follow username -f
+./github-followers follow username --force
+./github-followers follow username -f
 ```
 
-**Example workflow:**
-1. Tool fetches followers of the specified username
-2. Tool fetches your current following list
-3. Identifies users who follow the target user but don't follow you
-4. Shows the list and asks for confirmation (unless `--force` is used)
-5. Follows the users concurrently with rate limiting
+### Unfollow Command
+
+Unfollow users who don't follow you back:
+
+```bash
+# Show users who don't follow you back (dry run)
+./github-followers unfollow
+
+# Actually unfollow users who don't follow you back without confirm
+./github-followers unfollow --f
+./github-followers unfollow --force
+```
+
+## 🏗️ Project Structure
+
+```
+github-unfollow/
+├── cmd/                 # Main application entry point
+├── internal/
+│   ├── cli/            # Command-line interface implementation
+│   ├── config/         # Configuration management
+│   ├── git_hub_manager/# GitHub API client and operations
+│   ├── helper/         # Utility and helper functions
+│   └── worker/         # Worker pool implementation
+├── .env.example        # Example environment variables
+├── .gitignore          # Git ignore file
+├── go.mod              # Go module definition
+├── go.sum              # Go module checksums
+└── main.go             # Application entry point
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ### Unfollow Command
 
@@ -166,36 +213,12 @@ TIME_DELAY_MS=3000
 **Balanced:**
 ```env
 WORKER_COUNT=2
-QUEUE_SIZE=5
+QUEUE_SIZE=3
 TIME_DELAY_MS=2000
-```
-
-**Aggressive (use with caution):**
-```env
-WORKER_COUNT=5
-QUEUE_SIZE=10
-TIME_DELAY_MS=1000
 ```
 
 ## Examples
 
-### Follow new users from a popular account
-```bash
-# Follow followers of 'torvalds' who don't follow you
-./github-unfollow follow torvalds
-
-# Same but skip confirmation
-./github-unfollow follow torvalds --force
-```
-
-### Clean up your following list
-```bash
-# Unfollow users who don't follow you back
-./github-unfollow unfollow
-
-# Same but skip confirmation (dangerous!)
-./github-unfollow unfollow --force
-```
 
 ### Using environment variables
 ```bash
@@ -255,14 +278,6 @@ GitHub API has rate limits:
 **"User not found" error:**
 - Verify the username exists and is public
 - Some users may have restricted follower lists
-
-### Debug Mode
-
-Set environment variable for more verbose output:
-```bash
-export DEBUG=1
-./github-unfollow follow username
-```
 
 ## Contributing
 
