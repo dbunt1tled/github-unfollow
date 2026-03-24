@@ -9,6 +9,7 @@
 *.so
 *.dylib
 *.iml
+github-followers
 # Test binary, built with `go test -c`
 *.test
 
@@ -21,6 +22,7 @@
 # Go workspace file
 go.work
 go.work.sum
+go.sum
 
 # env file
 .env
