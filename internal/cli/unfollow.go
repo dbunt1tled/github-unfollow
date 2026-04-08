@@ -59,7 +59,7 @@ func unFollowCommand() *cobra.Command {
 				return nil
 			}
 			if force == false {
-				fmt.Printf("\nYou are shure that you want to unfollow %d users?", len(toUnfollow))
+				fmt.Printf("\nYou are sure that you want to unfollow %d users?", len(toUnfollow))
 				confirm := helper.GetInput("")
 				if strings.ToLower(confirm) != "y" && strings.ToLower(confirm) != "yes" {
 					fmt.Println("Operation canceled")

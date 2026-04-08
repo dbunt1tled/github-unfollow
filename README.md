@@ -51,7 +51,7 @@ A powerful Go-based command-line tool to manage your GitHub following relationsh
 
 3. Build the application:
    ```bash
-   go build -o github-followers ./main.go
+   go build -o github-followers ./cmd/main.go
    ```
 
 ### Option 2: Install via Go
