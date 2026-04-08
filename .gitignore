@@ -17,11 +17,11 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
-
+github-unfollow
 # Go workspace file
 go.work
 go.work.sum
-
+go.sum
 # env file
 .env
 
